@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,7 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -36,24 +37,35 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.example.coursetable.presentation.course.CourseTableViewModel
+import com.example.coursetable.presentation.course.ui.CourseTableRoute
 import com.example.coursetable.ui.theme.CourseTableTheme
 
 class MainActivity : ComponentActivity() {
+    private val courseTableViewModel: CourseTableViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             CourseTableTheme {
-                CourseTableApp()
+                CourseTableApp(courseTableViewModel)
             }
         }
     }
 }
 
 @Composable
-fun CourseTableApp() {
+fun CourseTableApp(courseTableViewModel: CourseTableViewModel) {
+    var selectedItem by remember { mutableStateOf(0) }
+
     Scaffold(
-        bottomBar = { MyBottomNavigation() }
+        bottomBar = {
+            MyBottomNavigation(
+                selectedItem = selectedItem,
+                onItemSelected = { selectedItem = it }
+            )
+        }
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -61,15 +73,23 @@ fun CourseTableApp() {
                 .padding(innerPadding),
             contentAlignment = Alignment.Center
         ) {
-            Text(text = "CourseTable")
+            when (selectedItem) {
+                0 -> CourseTableRoute(
+                    viewModel = courseTableViewModel,
+                    modifier = Modifier.fillMaxSize()
+                )
+                1 -> Text(text = "Music")
+                else -> Text(text = "Settings")
+            }
         }
     }
 }
 
 @Composable
-fun MyBottomNavigation() {
-
-    var selectedItem by remember { mutableStateOf(0) }
+fun MyBottomNavigation(
+    selectedItem: Int,
+    onItemSelected: (Int) -> Unit
+) {
 
     NavigationBar(
         containerColor = Color.White,
@@ -80,7 +100,7 @@ fun MyBottomNavigation() {
             NavigationBarItem(
                 selected = selectedItem == index,
                 onClick = {
-                    selectedItem = index
+                    onItemSelected(index)
                 },
                 icon = {
                     NavigationIcon(index, selectedItem)
@@ -108,7 +128,7 @@ fun NavigationIcon(index: Int, selectedItem: Int) {
     ) {
         when (index) {
             0 -> Icon(
-                imageVector = Icons.Filled.Home,
+                imageVector = Icons.Filled.CalendarMonth,
                 contentDescription = null,
                 modifier = Modifier.alpha(alpha)
             )

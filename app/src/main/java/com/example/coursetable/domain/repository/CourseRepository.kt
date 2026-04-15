@@ -1,4 +1,4 @@
-package com.example.coursetable.data.repository
+package com.example.coursetable.domain.repository
 
 import com.example.coursetable.domain.model.CourseDraftVo
 import com.example.coursetable.domain.model.CourseSessionDraftVo
@@ -26,4 +26,5 @@ interface CourseRepository {
 
     suspend fun deleteCourse(courseId: Long)
 }
+
 

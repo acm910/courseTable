@@ -1,4 +1,4 @@
-package com.example.coursetable
+package com.example.coursetable.core.time
 
 import android.content.Context
 import java.time.LocalDate
@@ -27,4 +27,5 @@ object SemesterStartDateStore {
         prefs.edit().putLong(KEY_SEMESTER_START_EPOCH_DAY, startDate.toEpochDay()).apply()
     }
 }
+
 

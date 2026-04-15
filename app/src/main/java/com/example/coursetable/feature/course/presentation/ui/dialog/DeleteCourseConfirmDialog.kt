@@ -1,4 +1,4 @@
-package com.example.coursetable.presentation.course.ui.dialog
+package com.example.coursetable.feature.course.presentation.ui.dialog
 
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
@@ -28,4 +28,5 @@ fun DeleteCourseConfirmDialog(
 		}
 	)
 }
+
 

@@ -1,9 +1,9 @@
-package com.example.coursetable.presentation.course
+package com.example.coursetable.feature.course.presentation
 
 import com.example.coursetable.domain.model.CourseSlotVo
-import com.example.coursetable.presentation.course.model.CourseDialogState
-import com.example.coursetable.presentation.course.model.CourseFormState
-import com.example.coursetable.presentation.course.model.CourseSelection
+import com.example.coursetable.feature.course.presentation.model.CourseDialogState
+import com.example.coursetable.feature.course.presentation.model.CourseFormState
+import com.example.coursetable.feature.course.presentation.model.CourseSelection
 
 data class CourseTableUiState(
     val selectedWeek: Int = 1,
@@ -15,4 +15,5 @@ data class CourseTableUiState(
     val isSaving: Boolean = false,
     val isDeleting: Boolean = false
 )
+
 

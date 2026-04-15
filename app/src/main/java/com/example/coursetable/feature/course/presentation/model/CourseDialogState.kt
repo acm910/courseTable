@@ -1,4 +1,4 @@
-package com.example.coursetable.presentation.course.model
+package com.example.coursetable.feature.course.presentation.model
 
 import com.example.coursetable.domain.model.CourseSlotVo
 
@@ -13,4 +13,5 @@ enum class CourseFormMode {
     Create,
     Edit
 }
+
 

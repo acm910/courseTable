@@ -2,6 +2,8 @@ package com.example.coursetable.data.repository
 
 import android.content.Context
 import com.example.coursetable.data.local.CourseTableDatabase
+import com.example.coursetable.data.repository.impl.CourseRepositoryImpl
+import com.example.coursetable.domain.repository.CourseRepository
 
 object CourseRepositoryProvider {
     @Volatile

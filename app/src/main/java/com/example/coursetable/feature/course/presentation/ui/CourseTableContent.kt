@@ -1,8 +1,7 @@
-package com.example.coursetable.presentation.course.ui
+package com.example.coursetable.feature.course.presentation.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.example.coursetable.CourseTablePrototype
 import com.example.coursetable.domain.model.CourseSlotVo
 
 @Composable
@@ -14,7 +13,7 @@ fun CourseTableContent(
     onWeekSelected: (Int) -> Unit,
     onWeekPickerDismiss: () -> Unit,
     onCourseClick: (CourseSlotVo) -> Unit,
-    onEmptySlotClick: (weekDay: Int, periodIndex: Int, startSection: Int, defaultSectionCount: Int) -> Unit,
+    onEmptySlotClick: (weekDay: Int, periodIndex: Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     CourseTablePrototype(
@@ -29,4 +28,5 @@ fun CourseTableContent(
         modifier = modifier
     )
 }
+
 

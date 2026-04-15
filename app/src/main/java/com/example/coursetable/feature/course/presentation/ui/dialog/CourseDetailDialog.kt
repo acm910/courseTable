@@ -1,6 +1,7 @@
-package com.example.coursetable.presentation.course.ui.dialog
+package com.example.coursetable.feature.course.presentation.ui.dialog
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -35,7 +36,7 @@ fun CourseDetailDialog(
             Column(modifier = Modifier.padding(16.dp)) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.Start
                 ) {
                     IconButton(onClick = onDeleteCourse) {
                         Icon(
@@ -43,12 +44,14 @@ fun CourseDetailDialog(
                             contentDescription = "删除课程"
                         )
                     }
+                }
+
+                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = androidx.compose.ui.Alignment.Center) {
                     Text(
                         text = "课程详情",
                         style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.padding(top = 10.dp)
+                        modifier = Modifier.padding(top = 2.dp)
                     )
-                    Text(text = "")
                 }
 
                 Text(text = slot.courseName, style = MaterialTheme.typography.titleLarge)
@@ -80,5 +83,6 @@ fun CourseDetailDialog(
         }
     }
 }
+
 
 

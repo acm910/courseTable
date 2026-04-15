@@ -4,7 +4,8 @@ import com.example.coursetable.data.local.dao.CourseDao
 import com.example.coursetable.data.local.dao.CourseSessionDao
 import com.example.coursetable.data.local.entity.CourseEntity
 import com.example.coursetable.data.local.entity.CourseSessionEntity
-import com.example.coursetable.data.local.model.CourseSessionWithCourseRow
+import com.example.coursetable.data.local.relation.CourseSessionWithCourseRow
+import com.example.coursetable.data.repository.impl.CourseRepositoryImpl
 import com.example.coursetable.domain.model.CourseDraftVo
 import com.example.coursetable.domain.model.CourseSessionDraftVo
 import kotlinx.coroutines.flow.Flow

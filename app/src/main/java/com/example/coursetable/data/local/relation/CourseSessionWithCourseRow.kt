@@ -1,4 +1,4 @@
-package com.example.coursetable.data.local.model
+package com.example.coursetable.data.local.relation
 
 import androidx.room.ColumnInfo
 
@@ -26,4 +26,5 @@ data class CourseSessionWithCourseRow(
     @ColumnInfo(name = "week_end")
     val weekEnd: Int
 )
+
 

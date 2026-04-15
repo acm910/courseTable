@@ -6,7 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.example.coursetable.data.local.entity.CourseSessionEntity
-import com.example.coursetable.data.local.model.CourseSessionWithCourseRow
+import com.example.coursetable.data.local.relation.CourseSessionWithCourseRow
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -39,10 +39,9 @@ interface CourseSessionDao {
             cs.week_end AS week_end
         FROM course_sessions cs
         INNER JOIN courses c ON c.id = cs.course_id
-        WHERE :selectedWeek BETWEEN cs.week_start AND cs.week_end
         ORDER BY cs.week_day ASC, cs.start_section ASC
         """
     )
-    fun observeByWeek(selectedWeek: Int): Flow<List<CourseSessionWithCourseRow>>
+    fun observeAll(): Flow<List<CourseSessionWithCourseRow>>
 }
 

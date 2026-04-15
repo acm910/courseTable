@@ -1,4 +1,4 @@
-package com.example.coursetable.data.repository
+package com.example.coursetable.data.repository.impl
 
 import com.example.coursetable.data.local.dao.CourseDao
 import com.example.coursetable.data.local.dao.CourseSessionDao
@@ -7,6 +7,7 @@ import com.example.coursetable.data.local.entity.CourseSessionEntity
 import com.example.coursetable.domain.model.CourseDraftVo
 import com.example.coursetable.domain.model.CourseSessionDraftVo
 import com.example.coursetable.domain.model.CourseSlotVo
+import com.example.coursetable.domain.repository.CourseRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -16,8 +17,7 @@ class CourseRepositoryImpl(
 ) : CourseRepository {
 
     override fun observeWeekCourses(selectedWeek: Int): Flow<List<CourseSlotVo>> {
-        val normalizedWeek = selectedWeek.coerceAtLeast(1)
-        return courseSessionDao.observeByWeek(normalizedWeek).map { rows ->
+        return courseSessionDao.observeAll().map { rows ->
             rows.map { row ->
                 CourseSlotVo(
                     sessionId = row.sessionId,
@@ -93,4 +93,5 @@ class CourseRepositoryImpl(
         courseDao.deleteById(courseId)
     }
 }
+
 

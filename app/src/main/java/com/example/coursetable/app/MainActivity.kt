@@ -1,4 +1,4 @@
-package com.example.coursetable
+package com.example.coursetable.app
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -37,8 +37,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.example.coursetable.presentation.course.CourseTableViewModel
-import com.example.coursetable.presentation.course.ui.CourseTableRoute
+import com.example.coursetable.R
+import com.example.coursetable.feature.course.presentation.CourseTableViewModel
+import com.example.coursetable.feature.course.presentation.ui.CourseTableRoute
 import com.example.coursetable.ui.theme.CourseTableTheme
 
 class MainActivity : ComponentActivity() {
@@ -149,3 +150,4 @@ fun NavigationIcon(index: Int, selectedItem: Int) {
         }
     }
 }
+

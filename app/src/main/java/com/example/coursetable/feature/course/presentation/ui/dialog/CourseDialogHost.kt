@@ -1,8 +1,8 @@
-package com.example.coursetable.presentation.course.ui.dialog
+package com.example.coursetable.feature.course.presentation.ui.dialog
 
 import androidx.compose.runtime.Composable
-import com.example.coursetable.presentation.course.CourseTableUiState
-import com.example.coursetable.presentation.course.model.CourseDialogState
+import com.example.coursetable.feature.course.presentation.CourseTableUiState
+import com.example.coursetable.feature.course.presentation.model.CourseDialogState
 
 @Composable
 fun CourseDialogHost(
@@ -15,11 +15,8 @@ fun CourseDialogHost(
     onNameChange: (String) -> Unit,
     onTeacherChange: (String) -> Unit,
     onLocationChange: (String) -> Unit,
-    onWeekDayChange: (Int) -> Unit,
-    onStartSectionChange: (Int) -> Unit,
-    onSectionCountChange: (Int) -> Unit,
-    onWeekStartChange: (Int) -> Unit,
-    onWeekEndChange: (Int) -> Unit,
+    onSectionRangeChange: (startSection: Int, sectionCount: Int) -> Unit,
+    onWeekRangeChange: (start: Int, end: Int) -> Unit,
     onColorChange: (Int) -> Unit,
     onSubmitForm: () -> Unit
 ) {
@@ -44,11 +41,8 @@ fun CourseDialogHost(
                 onNameChange = onNameChange,
                 onTeacherChange = onTeacherChange,
                 onLocationChange = onLocationChange,
-                onWeekDayChange = onWeekDayChange,
-                onStartSectionChange = onStartSectionChange,
-                onSectionCountChange = onSectionCountChange,
-                onWeekStartChange = onWeekStartChange,
-                onWeekEndChange = onWeekEndChange,
+                onSectionRangeChange = onSectionRangeChange,
+                onWeekRangeChange = onWeekRangeChange,
                 onColorChange = onColorChange,
                 onSubmit = onSubmitForm
             )
@@ -66,5 +60,6 @@ fun CourseDialogHost(
         }
     }
 }
+
 
 

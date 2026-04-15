@@ -1,4 +1,4 @@
-package com.example.coursetable.presentation.course
+package com.example.coursetable.feature.course.presentation
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
@@ -7,10 +7,12 @@ import com.example.coursetable.data.repository.CourseRepositoryProvider
 import com.example.coursetable.domain.model.CourseDraftVo
 import com.example.coursetable.domain.model.CourseSessionDraftVo
 import com.example.coursetable.domain.model.CourseSlotVo
-import com.example.coursetable.presentation.course.model.CourseDialogState
-import com.example.coursetable.presentation.course.model.CourseFormMode
-import com.example.coursetable.presentation.course.model.CourseFormState
-import com.example.coursetable.presentation.course.model.CourseSelection
+import com.example.coursetable.feature.course.presentation.model.CourseDialogState
+import com.example.coursetable.feature.course.presentation.model.CourseFormMode
+import com.example.coursetable.feature.course.presentation.model.CourseFormState
+import com.example.coursetable.feature.course.presentation.model.CourseSelection
+import com.example.coursetable.feature.course.presentation.ui.table.buildSectionRangeOptions
+import com.example.coursetable.feature.course.presentation.ui.table.findPeriodIndexByStartSection
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -90,18 +92,18 @@ class CourseTableViewModel(application: Application) : AndroidViewModel(applicat
         dialogStateFlow.value = CourseDialogState.Detail(slot)
     }
 
-    fun onEmptySlotClick(weekDay: Int, periodIndex: Int, startSection: Int, defaultSectionCount: Int) {
+    fun onEmptySlotClick(weekDay: Int, periodIndex: Int) {
         val week = selectedWeekFlow.value
+        val defaultOption = buildSectionRangeOptions(periodIndex).first()
         activeSelectionFlow.value = CourseSelection.EmptySlot(
             weekDay = weekDay,
-            periodIndex = periodIndex,
-            startSection = startSection,
-            defaultSectionCount = defaultSectionCount
+            periodIndex = periodIndex
         )
         formStateFlow.value = CourseFormState(
             weekDay = weekDay,
-            startSection = startSection,
-            sectionCount = defaultSectionCount,
+            periodIndex = periodIndex,
+            startSection = defaultOption.startSection,
+            sectionCount = defaultOption.sectionCount,
             weekStart = week,
             weekEnd = week,
             colorIndex = 0
@@ -118,8 +120,10 @@ class CourseTableViewModel(application: Application) : AndroidViewModel(applicat
     fun onAddCourseFromDetail() {
         val selection = activeSelectionFlow.value as? CourseSelection.ExistingCourse ?: return
         val slot = selection.slot
+        val periodIndex = findPeriodIndexByStartSection(slot.startSection)
         formStateFlow.value = CourseFormState(
             weekDay = slot.weekDay,
+            periodIndex = periodIndex,
             startSection = slot.startSection,
             sectionCount = slot.sectionCount,
             weekStart = selectedWeekFlow.value,
@@ -132,6 +136,7 @@ class CourseTableViewModel(application: Application) : AndroidViewModel(applicat
     fun onEditCourseFromDetail() {
         val selection = activeSelectionFlow.value as? CourseSelection.ExistingCourse ?: return
         val slot = selection.slot
+        val periodIndex = findPeriodIndexByStartSection(slot.startSection)
         formStateFlow.value = CourseFormState(
             courseId = slot.courseId,
             sessionId = slot.sessionId,
@@ -139,6 +144,7 @@ class CourseTableViewModel(application: Application) : AndroidViewModel(applicat
             teacher = slot.teacher,
             location = slot.location,
             weekDay = slot.weekDay,
+            periodIndex = periodIndex,
             startSection = slot.startSection,
             sectionCount = slot.sectionCount,
             weekStart = slot.weekStart,
@@ -165,16 +171,13 @@ class CourseTableViewModel(application: Application) : AndroidViewModel(applicat
         formStateFlow.value = formStateFlow.value.copy(location = value, errorMessage = null)
     }
 
-    fun onWeekDayChange(value: Int) {
-        formStateFlow.value = formStateFlow.value.copy(weekDay = value.coerceIn(1, 7), errorMessage = null)
-    }
-
-    fun onStartSectionChange(value: Int) {
-        formStateFlow.value = formStateFlow.value.copy(startSection = value.coerceAtLeast(1), errorMessage = null)
-    }
-
-    fun onSectionCountChange(value: Int) {
-        formStateFlow.value = formStateFlow.value.copy(sectionCount = value.coerceIn(2, 3), errorMessage = null)
+    fun onSectionRangeChange(startSection: Int, sectionCount: Int) {
+        val normalizedCount = sectionCount.coerceIn(2, 3)
+        formStateFlow.value = formStateFlow.value.copy(
+            startSection = startSection.coerceAtLeast(1),
+            sectionCount = normalizedCount,
+            errorMessage = null
+        )
     }
 
     fun onWeekStartChange(value: Int) {
@@ -189,6 +192,16 @@ class CourseTableViewModel(application: Application) : AndroidViewModel(applicat
         val normalized = value.coerceIn(1, 20)
         val start = current.weekStart.coerceAtMost(normalized)
         formStateFlow.value = current.copy(weekStart = start, weekEnd = normalized, errorMessage = null)
+    }
+
+    fun onWeekRangeChange(start: Int, end: Int) {
+        val normalizedStart = start.coerceIn(1, 20)
+        val normalizedEnd = end.coerceIn(1, 20)
+        formStateFlow.value = formStateFlow.value.copy(
+            weekStart = minOf(normalizedStart, normalizedEnd),
+            weekEnd = maxOf(normalizedStart, normalizedEnd),
+            errorMessage = null
+        )
     }
 
     fun onColorChange(value: Int) {
@@ -255,3 +268,4 @@ class CourseTableViewModel(application: Application) : AndroidViewModel(applicat
         }
     }
 }
+

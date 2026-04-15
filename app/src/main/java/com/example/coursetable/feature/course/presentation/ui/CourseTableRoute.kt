@@ -1,17 +1,13 @@
-package com.example.coursetable.presentation.course.ui
+package com.example.coursetable.feature.course.presentation.ui
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import com.example.coursetable.CourseTablePrototype
-import com.example.coursetable.presentation.course.CourseTableViewModel
-import com.example.coursetable.presentation.course.model.CourseDialogState
-import com.example.coursetable.presentation.course.ui.dialog.CourseDialogHost
+import com.example.coursetable.feature.course.presentation.CourseTableViewModel
+import com.example.coursetable.feature.course.presentation.ui.dialog.CourseDialogHost
 
 @Composable
 fun CourseTableRoute(
@@ -30,16 +26,9 @@ fun CourseTableRoute(
             onWeekSelected = viewModel::onWeekSelected,
             onWeekPickerDismiss = viewModel::onWeekPickerDismiss,
             onCourseClick = viewModel::onCourseBlockClick,
-            onEmptySlotClick = viewModel::onEmptySlotClick
+            onEmptySlotClick = viewModel::onEmptySlotClick,
+            showDebugText = true
         )
-
-        if (uiState.dialogState !is CourseDialogState.None) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.35f))
-            )
-        }
 
         CourseDialogHost(
             uiState = uiState,
@@ -51,15 +40,13 @@ fun CourseTableRoute(
             onNameChange = viewModel::onNameChange,
             onTeacherChange = viewModel::onTeacherChange,
             onLocationChange = viewModel::onLocationChange,
-            onWeekDayChange = viewModel::onWeekDayChange,
-            onStartSectionChange = viewModel::onStartSectionChange,
-            onSectionCountChange = viewModel::onSectionCountChange,
-            onWeekStartChange = viewModel::onWeekStartChange,
-            onWeekEndChange = viewModel::onWeekEndChange,
+            onSectionRangeChange = viewModel::onSectionRangeChange,
+            onWeekRangeChange = viewModel::onWeekRangeChange,
             onColorChange = viewModel::onColorChange,
             onSubmitForm = viewModel::onSubmitForm
         )
     }
 }
+
 
 

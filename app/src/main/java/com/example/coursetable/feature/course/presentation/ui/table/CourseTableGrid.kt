@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -63,8 +64,7 @@ fun DayColumn(
     selectedWeek: Int,
     weekCourses: List<CourseSlotVo>,
     onCourseClick: ((CourseSlotVo) -> Unit)?,
-    onEmptySlotClick: ((weekDay: Int, periodIndex: Int) -> Unit)?,
-    showDebugText: Boolean = false
+    onEmptySlotClick: ((weekDay: Int, periodIndex: Int) -> Unit)?
 ) {
     val dayCourses = weekCourses.filter { it.weekDay == weekDayIndex }
 
@@ -98,7 +98,6 @@ fun DayColumn(
                 periodSlot = periodSlot,
                 slot = matchedCourse,
                 selectedWeek = selectedWeek,
-                showDebugText = showDebugText,
                 onClick = {
                     if (matchedCourse == null) {
                         onEmptySlotClick?.invoke(weekDayIndex, index)
@@ -182,7 +181,6 @@ private fun CoursePeriodBlock(
     periodSlot: PeriodSlot,
     slot: CourseSlotVo?,
     selectedWeek: Int,
-    showDebugText: Boolean = false,
     onClick: (() -> Unit)? = null
 ) {
     val sectionSize = (periodSlot.endSection - periodSlot.startSection + 1).coerceAtLeast(1)
@@ -200,11 +198,7 @@ private fun CoursePeriodBlock(
     val occupiedHeight = sectionHeight * occupiedSections
     val bottomOffset = sectionHeight * bottomOffsetSections
     val isCurrentWeek = slot?.let { selectedWeek in it.weekStart..it.weekEnd } ?: false
-    val debugText = if (slot != null) {
-        "raw:${slot.startSection}-${slot.startSection + slot.sectionCount - 1} vis:${visibleStart}-${visibleEnd} h:${occupiedHeight.value.toInt()}dp off:${topOffset.value.toInt()}dp"
-    } else {
-        ""
-    }
+    val hasUnoccupiedArea = slot != null && occupiedSections < sectionSize
 
     val courseColor = if (slot == null) {
         Color(CourseColorPalette.emptySlotColor)
@@ -216,10 +210,16 @@ private fun CoursePeriodBlock(
     }
 
     Surface(
-        color = Color(CourseColorPalette.emptySlotColor),
+        color = if (hasUnoccupiedArea) MaterialTheme.colorScheme.background else Color(CourseColorPalette.emptySlotColor),
         modifier = Modifier
             .size(width = width, height = height)
-            .border(width = 1.dp, color = Color(0x1F344054), shape = RoundedCornerShape(8.dp))
+            .then(
+                if (hasUnoccupiedArea) {
+                    Modifier
+                } else {
+                    Modifier.border(width = 1.dp, color = Color(0x1F344054), shape = RoundedCornerShape(8.dp))
+                }
+            )
             .clickable(enabled = onClick != null) { onClick?.invoke() },
         shape = RoundedCornerShape(8.dp)
     ) {
@@ -237,17 +237,6 @@ private fun CoursePeriodBlock(
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.SpaceBetween
                     ) {
-                        if (showDebugText && debugText.isNotBlank()) {
-                            Text(
-                                text = debugText,
-                                fontSize = 8.sp,
-                                lineHeight = 9.sp,
-                                modifier = Modifier.padding(top = 2.dp, start = 3.dp, end = 3.dp),
-                                maxLines = 2,
-                                color = Color.White,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        }
                         Text(
                             text = if (isCurrentWeek) slot.courseName else "【非本周】${slot.courseName}",
                             fontSize = 12.sp,

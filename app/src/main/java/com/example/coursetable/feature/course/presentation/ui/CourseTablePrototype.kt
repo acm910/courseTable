@@ -15,11 +15,14 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -31,6 +34,8 @@ import com.example.coursetable.feature.course.presentation.ui.table.WeekPickerBo
 import com.example.coursetable.feature.course.presentation.ui.table.WeekSelector
 import com.example.coursetable.feature.course.presentation.ui.table.buildWeekSchedules
 import com.example.coursetable.feature.course.presentation.ui.table.calculateDayWidth
+import com.example.coursetable.feature.course.presentation.ui.table.calculateCurrentWeek
+import com.example.coursetable.feature.course.presentation.ui.table.calculateInitialDayStartIndex
 import com.example.coursetable.feature.course.presentation.ui.table.calculateSlotHeights
 import com.example.coursetable.feature.course.presentation.ui.table.calculateVisibleDays
 import com.example.coursetable.feature.course.presentation.ui.table.slotWeights
@@ -61,7 +66,6 @@ fun CourseTablePrototype(
     onWeekPickerDismiss: (() -> Unit)? = null,
     onCourseClick: ((CourseSlotVo) -> Unit)? = null,
     onEmptySlotClick: ((weekDay: Int, periodIndex: Int) -> Unit)? = null,
-    showDebugText: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -74,6 +78,9 @@ fun CourseTablePrototype(
     val schedules = remember(semesterStartDate, effectiveSelectedWeek) {
         buildWeekSchedules(semesterStartDate, effectiveSelectedWeek)
     }
+    val currentWeek = remember(semesterStartDate) { calculateCurrentWeek(semesterStartDate, LocalDate.now()) }
+    val horizontalScrollState = rememberScrollState()
+    val density = LocalDensity.current
 
     val weekSelectorHeight = 45.dp
     val leftTimeLabelWidth = 12.dp
@@ -90,6 +97,17 @@ fun CourseTablePrototype(
         val contentWidth = (maxWidth - leftTimeLabelWidth - daySpacing).coerceAtLeast(0.dp)
         val visibleDays = calculateVisibleDays(contentWidth, minCourseBlockWidth, daySpacing)
         val dayWidth = calculateDayWidth(contentWidth, visibleDays, daySpacing)
+        val todayWeekDayIndex = (LocalDate.now().dayOfWeek.value - 1).coerceIn(0, 6)
+
+        LaunchedEffect(effectiveSelectedWeek, visibleDays, dayWidth) {
+            val initialStartIndex = if (effectiveSelectedWeek == currentWeek) {
+                calculateInitialDayStartIndex(todayWeekDayIndex, visibleDays)
+            } else {
+                0
+            }
+            val dayStepPx = with(density) { (dayWidth + daySpacing).roundToPx() }
+            horizontalScrollState.scrollTo((initialStartIndex * dayStepPx).coerceAtLeast(0))
+        }
 
         val tableBodyHeight = (maxHeight - weekSelectorHeight - 8.dp).coerceAtLeast(0.dp)
         val slotAreaHeight = (tableBodyHeight - dayHeaderHeight - headerBottomGap).coerceAtLeast(0.dp)
@@ -128,7 +146,7 @@ fun CourseTablePrototype(
                 Row(
                     modifier = Modifier
                         .fillMaxHeight()
-                        .horizontalScroll(rememberScrollState())
+                        .horizontalScroll(horizontalScrollState)
                 ) {
                     schedules.forEachIndexed { index, day ->
                         DayColumn(
@@ -144,8 +162,7 @@ fun CourseTablePrototype(
                             selectedWeek = effectiveSelectedWeek,
                             weekCourses = weekCourses,
                             onCourseClick = onCourseClick,
-                            onEmptySlotClick = onEmptySlotClick,
-                            showDebugText = showDebugText
+                            onEmptySlotClick = onEmptySlotClick
                         )
                         if (index != schedules.lastIndex) {
                             Spacer(modifier = Modifier.width(daySpacing))

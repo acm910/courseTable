@@ -4,6 +4,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 import kotlin.math.floor
 import kotlin.math.max
 
@@ -95,6 +96,21 @@ fun buildWeekSchedules(semesterStartDate: LocalDate, selectedWeek: Int): List<Da
             weekDay = date.dayOfWeek.toChineseWeekDay()
         )
     }
+}
+
+fun calculateCurrentWeek(semesterStartDate: LocalDate, today: LocalDate = LocalDate.now()): Int {
+    val daysFromMonday = (semesterStartDate.dayOfWeek.value - DayOfWeek.MONDAY.value).toLong()
+    val firstWeekMonday = semesterStartDate.minusDays(daysFromMonday)
+    val diffDays = ChronoUnit.DAYS.between(firstWeekMonday, today)
+    val rawWeek = (diffDays / 7L + 1L).toInt()
+    return rawWeek.coerceIn(1, 20)
+}
+
+fun calculateInitialDayStartIndex(todayWeekDayIndex: Int, visibleDays: Int, totalDays: Int = 7): Int {
+    if (visibleDays >= totalDays) return 0
+    val clampedToday = todayWeekDayIndex.coerceIn(0, totalDays - 1)
+    val maxStart = totalDays - visibleDays
+    return (clampedToday - (visibleDays - 1)).coerceIn(0, maxStart)
 }
 
 private fun DayOfWeek.toChineseWeekDay(): String {

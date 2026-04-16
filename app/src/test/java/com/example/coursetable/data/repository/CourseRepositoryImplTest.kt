@@ -51,7 +51,7 @@ class CourseRepositoryImplTest {
         val week21 = repository.observeWeekCourses(21).first()
 
         assertEquals(1, week1.size)
-        assertEquals(0, week21.size)
+        assertEquals(1, week21.size)
         assertEquals("高等数学", week1.first().courseName)
         assertEquals("张老师", week1.first().teacher)
         assertEquals("A101", week1.first().location)
@@ -154,6 +154,12 @@ private class FakeCourseDao : CourseDao {
         }
     }
 
+    override suspend fun deleteAll() {
+        courses.keys.toList().forEach { onCourseDeleted?.invoke(it) }
+        courses.clear()
+        publish()
+    }
+
     override suspend fun getById(courseId: Long): CourseEntity? = courses[courseId]
 
     override fun observeAll(): Flow<List<CourseEntity>> = courseFlow
@@ -205,11 +211,9 @@ private class FakeCourseSessionDao(
         refreshRows()
     }
 
-    override fun observeByWeek(selectedWeek: Int): Flow<List<CourseSessionWithCourseRow>> {
-        val week = selectedWeek.coerceAtLeast(1)
+    override fun observeAll(): Flow<List<CourseSessionWithCourseRow>> {
         return joinedRows.map { rows ->
-            rows.filter { week in it.weekStart..it.weekEnd }
-                .sortedWith(compareBy({ it.weekDay }, { it.startSection }))
+            rows.sortedWith(compareBy({ it.weekDay }, { it.startSection }))
         }
     }
 
@@ -233,4 +237,3 @@ private class FakeCourseSessionDao(
         }
     }
 }
-

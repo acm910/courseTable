@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.FormatListBulleted
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
@@ -25,7 +26,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,11 +35,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.example.coursetable.R
 import com.example.coursetable.feature.course.presentation.CourseTableViewModel
 import com.example.coursetable.feature.course.presentation.ui.CourseTableRoute
+import com.example.coursetable.feature.course.presentation.ui.TodayScheduleRoute
+import com.example.coursetable.feature.settings.presentation.ui.SettingsRoute
 import com.example.coursetable.ui.theme.CourseTableTheme
 
 class MainActivity : ComponentActivity() {
@@ -79,8 +79,14 @@ fun CourseTableApp(courseTableViewModel: CourseTableViewModel) {
                     viewModel = courseTableViewModel,
                     modifier = Modifier.fillMaxSize()
                 )
-                1 -> Text(text = "Music")
-                else -> Text(text = "Settings")
+                1 -> TodayScheduleRoute(
+                    viewModel = courseTableViewModel,
+                    modifier = Modifier.fillMaxSize()
+                )
+                else -> SettingsRoute(
+                    viewModel = courseTableViewModel,
+                    modifier = Modifier.fillMaxSize()
+                )
             }
         }
     }
@@ -134,7 +140,7 @@ fun NavigationIcon(index: Int, selectedItem: Int) {
                 modifier = Modifier.alpha(alpha)
             )
             1 -> Icon(
-                painter = painterResource(R.drawable.musicnote),
+                imageVector = Icons.AutoMirrored.Filled.FormatListBulleted,
                 contentDescription = null,
                 modifier = Modifier.alpha(alpha)
             )

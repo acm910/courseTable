@@ -3,6 +3,7 @@ package com.example.coursetable.feature.course.presentation
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.coursetable.core.time.SemesterStartDateStore
 import com.example.coursetable.data.repository.CourseRepositoryProvider
 import com.example.coursetable.domain.model.CourseDraftVo
 import com.example.coursetable.domain.model.CourseSessionDraftVo
@@ -11,8 +12,10 @@ import com.example.coursetable.feature.course.presentation.model.CourseDialogSta
 import com.example.coursetable.feature.course.presentation.model.CourseFormMode
 import com.example.coursetable.feature.course.presentation.model.CourseFormState
 import com.example.coursetable.feature.course.presentation.model.CourseSelection
+import com.example.coursetable.feature.course.presentation.ui.table.calculateCurrentWeek
 import com.example.coursetable.feature.course.presentation.ui.table.buildSectionRangeOptions
 import com.example.coursetable.feature.course.presentation.ui.table.findPeriodIndexByStartSection
+import com.example.coursetable.feature.webView.JwxtCourseImportParser
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -21,32 +24,45 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class CourseTableViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = CourseRepositoryProvider.get(application)
+    private val appContext = application.applicationContext
+    private val initialSemesterStartDate = SemesterStartDateStore.get(appContext)
+    private val initialWeek = calculateCurrentWeek(initialSemesterStartDate)
 
-    private val selectedWeekFlow = MutableStateFlow(1)
+    private val selectedWeekFlow = MutableStateFlow(initialWeek)
+    private val semesterStartDateFlow = MutableStateFlow(initialSemesterStartDate)
     private val showWeekPickerFlow = MutableStateFlow(false)
     private val dialogStateFlow = MutableStateFlow<CourseDialogState>(CourseDialogState.None)
     private val formStateFlow = MutableStateFlow(CourseFormState())
     private val activeSelectionFlow = MutableStateFlow<CourseSelection?>(null)
     private val isSavingFlow = MutableStateFlow(false)
     private val isDeletingFlow = MutableStateFlow(false)
+    private val isImportingFlow = MutableStateFlow(false)
+    private val importMessageFlow = MutableStateFlow<String?>(null)
 
     private val weekCoursesFlow = selectedWeekFlow.flatMapLatest { week ->
         repository.observeWeekCourses(week)
     }
 
+    private val weekAndStartDateFlow = combine(selectedWeekFlow, semesterStartDateFlow) { selectedWeek, semesterStartDate ->
+        selectedWeek to semesterStartDate
+    }
+
     private val coreUiStateFlow = combine(
-        selectedWeekFlow,
+        weekAndStartDateFlow,
         showWeekPickerFlow,
         weekCoursesFlow,
         dialogStateFlow,
         formStateFlow
-    ) { selectedWeek, showWeekPicker, weekCourses, dialogState, formState ->
+    ) { weekAndStartDate, showWeekPicker, weekCourses, dialogState, formState ->
+        val (selectedWeek, semesterStartDate) = weekAndStartDate
         CourseTableUiState(
             selectedWeek = selectedWeek,
+            semesterStartDate = semesterStartDate,
             showWeekPicker = showWeekPicker,
             weekCourses = weekCourses,
             dialogState = dialogState,
@@ -61,12 +77,16 @@ class CourseTableViewModel(application: Application) : AndroidViewModel(applicat
     val uiState: StateFlow<CourseTableUiState> = combine(
         coreUiStateFlow,
         selectionAndSavingFlow,
-        isDeletingFlow
-    ) { coreState, selectionAndSaving, isDeleting ->
+        isDeletingFlow,
+        isImportingFlow,
+        importMessageFlow
+    ) { coreState, selectionAndSaving, isDeleting, isImporting, importMessage ->
         coreState.copy(
             activeSelection = selectionAndSaving.first,
             isSaving = selectionAndSaving.second,
-            isDeleting = isDeleting
+            isDeleting = isDeleting,
+            isImporting = isImporting,
+            importMessage = importMessage
         )
     }.stateIn(
         scope = viewModelScope,
@@ -85,6 +105,12 @@ class CourseTableViewModel(application: Application) : AndroidViewModel(applicat
     fun onWeekSelected(week: Int) {
         selectedWeekFlow.value = week.coerceAtLeast(1)
         showWeekPickerFlow.value = false
+    }
+
+    fun onSemesterStartDateChange(startDate: LocalDate) {
+        val normalizedDate = startDate
+        semesterStartDateFlow.value = normalizedDate
+        SemesterStartDateStore.set(appContext, normalizedDate)
     }
 
     fun onCourseBlockClick(slot: CourseSlotVo) {
@@ -267,5 +293,44 @@ class CourseTableViewModel(application: Application) : AndroidViewModel(applicat
             }
         }
     }
-}
 
+    fun importCoursesFromWebPayload(rawJson: String) {
+        viewModelScope.launch {
+            isImportingFlow.value = true
+            try {
+                val importItems = JwxtCourseImportParser.parseImportItems(rawJson)
+                if (importItems.isEmpty()) {
+                    importMessageFlow.value = "未解析到可导入的课程数据"
+                    return@launch
+                }
+                val result = repository.replaceAllCourses(importItems)
+                importMessageFlow.value = "导入完成：${result.importedCourseCount} 门课，${result.importedSessionCount} 条排课"
+            } catch (t: Throwable) {
+                importMessageFlow.value = "导入失败：${t.message ?: "未知错误"}"
+            } finally {
+                isImportingFlow.value = false
+            }
+        }
+    }
+
+    fun clearAllCourses(onCompleted: ((Boolean) -> Unit)? = null) {
+        viewModelScope.launch {
+            isImportingFlow.value = true
+            var success = false
+            try {
+                repository.clearAllCourses()
+                importMessageFlow.value = "已删除全部课程"
+                success = true
+            } catch (t: Throwable) {
+                importMessageFlow.value = "删除失败：${t.message ?: "未知错误"}"
+            } finally {
+                isImportingFlow.value = false
+                onCompleted?.invoke(success)
+            }
+        }
+    }
+
+    fun consumeImportMessage() {
+        importMessageFlow.value = null
+    }
+}

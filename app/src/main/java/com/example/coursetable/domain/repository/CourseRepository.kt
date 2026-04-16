@@ -1,6 +1,8 @@
 package com.example.coursetable.domain.repository
 
 import com.example.coursetable.domain.model.CourseDraftVo
+import com.example.coursetable.domain.model.CourseImportItemVo
+import com.example.coursetable.domain.model.CourseImportResultVo
 import com.example.coursetable.domain.model.CourseSessionDraftVo
 import com.example.coursetable.domain.model.CourseSlotVo
 import kotlinx.coroutines.flow.Flow
@@ -25,6 +27,8 @@ interface CourseRepository {
     )
 
     suspend fun deleteCourse(courseId: Long)
+
+    suspend fun clearAllCourses()
+
+    suspend fun replaceAllCourses(importItems: List<CourseImportItemVo>): CourseImportResultVo
 }
-
-

@@ -106,13 +106,6 @@ fun calculateCurrentWeek(semesterStartDate: LocalDate, today: LocalDate = LocalD
     return rawWeek.coerceIn(1, 20)
 }
 
-fun calculateInitialDayStartIndex(todayWeekDayIndex: Int, visibleDays: Int, totalDays: Int = 7): Int {
-    if (visibleDays >= totalDays) return 0
-    val clampedToday = todayWeekDayIndex.coerceIn(0, totalDays - 1)
-    val maxStart = totalDays - visibleDays
-    return (clampedToday - (visibleDays - 1)).coerceIn(0, maxStart)
-}
-
 private fun DayOfWeek.toChineseWeekDay(): String {
     return when (this) {
         DayOfWeek.MONDAY -> "周一"

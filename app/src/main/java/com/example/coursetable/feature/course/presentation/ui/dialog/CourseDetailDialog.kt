@@ -28,9 +28,6 @@ fun CourseDetailDialog(
     onEditCourse: () -> Unit,
     onDeleteCourse: () -> Unit
 ) {
-    val endSection = slot.startSection + slot.sectionCount - 1
-    val timeRangeText = buildSectionTimeRange(slot.startSection, endSection)
-
     Dialog(onDismissRequest = onDismiss) {
         Surface(
             shape = MaterialTheme.shapes.large,
@@ -65,7 +62,7 @@ fun CourseDetailDialog(
                 )
                 Text(text = "授课地点: ${slot.location}", modifier = Modifier.padding(top = 4.dp))
                 Text(
-                    text = "授课时间: 第${slot.startSection}-${endSection}节（$timeRangeText）",
+                    text = "授课时间: 第${slot.startSection}-${slot.startSection + slot.sectionCount - 1}节（具体时间待补充）",
                     modifier = Modifier.padding(top = 4.dp)
                 )
 
@@ -86,28 +83,6 @@ fun CourseDetailDialog(
         }
     }
 }
-
-private fun buildSectionTimeRange(startSection: Int, endSection: Int): String {
-    val start = sectionTimeMap[startSection]?.first
-    val end = sectionTimeMap[endSection]?.second
-    return if (start != null && end != null) "$start-$end" else "时间待定"
-}
-
-private val sectionTimeMap = mapOf(
-    1 to ("8:00" to "8:45"),
-    2 to ("8:50" to "9:35"),
-    3 to ("9:55" to "10:40"),
-    4 to ("10:45" to "11:30"),
-    5 to ("11:35" to "12:20"),
-    6 to ("14:00" to "14:45"),
-    7 to ("14:50" to "15:35"),
-    8 to ("15:40" to "16:25"),
-    9 to ("16:45" to "17:30"),
-    10 to ("17:35" to "18:20"),
-    11 to ("19:00" to "19:40"),
-    12 to ("19:45" to "20:30"),
-    13 to ("20:35" to "21:20")
-)
 
 
 

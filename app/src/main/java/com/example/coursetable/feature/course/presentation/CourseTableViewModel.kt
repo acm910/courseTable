@@ -12,7 +12,6 @@ import com.example.coursetable.feature.course.presentation.model.CourseDialogSta
 import com.example.coursetable.feature.course.presentation.model.CourseFormMode
 import com.example.coursetable.feature.course.presentation.model.CourseFormState
 import com.example.coursetable.feature.course.presentation.model.CourseSelection
-import com.example.coursetable.feature.course.presentation.ui.table.calculateCurrentWeek
 import com.example.coursetable.feature.course.presentation.ui.table.buildSectionRangeOptions
 import com.example.coursetable.feature.course.presentation.ui.table.findPeriodIndexByStartSection
 import com.example.coursetable.feature.webView.JwxtCourseImportParser
@@ -30,11 +29,9 @@ import java.time.LocalDate
 class CourseTableViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = CourseRepositoryProvider.get(application)
     private val appContext = application.applicationContext
-    private val initialSemesterStartDate = SemesterStartDateStore.get(appContext)
-    private val initialWeek = calculateCurrentWeek(initialSemesterStartDate)
 
-    private val selectedWeekFlow = MutableStateFlow(initialWeek)
-    private val semesterStartDateFlow = MutableStateFlow(initialSemesterStartDate)
+    private val selectedWeekFlow = MutableStateFlow(1)
+    private val semesterStartDateFlow = MutableStateFlow(SemesterStartDateStore.get(appContext))
     private val showWeekPickerFlow = MutableStateFlow(false)
     private val dialogStateFlow = MutableStateFlow<CourseDialogState>(CourseDialogState.None)
     private val formStateFlow = MutableStateFlow(CourseFormState())

@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -198,7 +197,6 @@ private fun CoursePeriodBlock(
     val occupiedHeight = sectionHeight * occupiedSections
     val bottomOffset = sectionHeight * bottomOffsetSections
     val isCurrentWeek = slot?.let { selectedWeek in it.weekStart..it.weekEnd } ?: false
-    val hasUnoccupiedArea = slot != null && occupiedSections < sectionSize
 
     val courseColor = if (slot == null) {
         Color(CourseColorPalette.emptySlotColor)
@@ -210,16 +208,10 @@ private fun CoursePeriodBlock(
     }
 
     Surface(
-        color = if (hasUnoccupiedArea) MaterialTheme.colorScheme.background else Color(CourseColorPalette.emptySlotColor),
+        color = Color(CourseColorPalette.emptySlotColor),
         modifier = Modifier
             .size(width = width, height = height)
-            .then(
-                if (hasUnoccupiedArea) {
-                    Modifier
-                } else {
-                    Modifier.border(width = 1.dp, color = Color(0x1F344054), shape = RoundedCornerShape(8.dp))
-                }
-            )
+            .border(width = 1.dp, color = Color(0x1F344054), shape = RoundedCornerShape(8.dp))
             .clickable(enabled = onClick != null) { onClick?.invoke() },
         shape = RoundedCornerShape(8.dp)
     ) {

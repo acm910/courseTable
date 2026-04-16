@@ -1,4 +1,4 @@
-package com.example.coursetable.app
+package com.example.coursetable
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity

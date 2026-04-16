@@ -1,6 +1,5 @@
 package com.example.coursetable.feature.course.presentation.ui.table
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -206,12 +206,16 @@ private fun CoursePeriodBlock(
         val palette = CourseColorPalette.presetColors
         Color(palette[slot.colorIndex.mod(palette.size)])
     }
+    val slotContainerColor = if (slot == null) {
+        Color(CourseColorPalette.emptySlotColor)
+    } else {
+        MaterialTheme.colorScheme.background
+    }
 
     Surface(
-        color = Color(CourseColorPalette.emptySlotColor),
+        color = slotContainerColor,
         modifier = Modifier
             .size(width = width, height = height)
-            .border(width = 1.dp, color = Color(0x1F344054), shape = RoundedCornerShape(8.dp))
             .clickable(enabled = onClick != null) { onClick?.invoke() },
         shape = RoundedCornerShape(8.dp)
     ) {

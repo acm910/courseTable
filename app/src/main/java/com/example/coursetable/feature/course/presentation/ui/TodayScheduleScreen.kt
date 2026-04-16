@@ -14,25 +14,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.coursetable.core.time.buildSectionTimeLabel
 import com.example.coursetable.domain.model.CourseSlotVo
-
-private data class SectionTime(val start: String, val end: String)
-
-private val sectionTimeMap = mapOf(
-    1 to SectionTime("8:00", "8:45"),
-    2 to SectionTime("8:50", "9:35"),
-    3 to SectionTime("9:55", "10:40"),
-    4 to SectionTime("10:45", "11:30"),
-    5 to SectionTime("11:35", "12:20"),
-    6 to SectionTime("14:00", "14:45"),
-    7 to SectionTime("14:50", "15:35"),
-    8 to SectionTime("15:40", "16:25"),
-    9 to SectionTime("16:45", "17:30"),
-    10 to SectionTime("17:35", "18:20"),
-    11 to SectionTime("19:00", "19:40"),
-    12 to SectionTime("19:45", "20:30"),
-    13 to SectionTime("20:35", "21:20")
-)
 
 @Composable
 fun TodayScheduleScreen(
@@ -82,7 +65,7 @@ fun TodayScheduleScreen(
 @Composable
 private fun TodayCourseCard(course: CourseSlotVo) {
     val endSection = course.startSection + course.sectionCount - 1
-    val timeLabel = buildTimeLabel(course.startSection, endSection)
+    val timeLabel = buildSectionTimeLabel(course.startSection, endSection)
 
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(14.dp)) {
@@ -114,11 +97,6 @@ private fun TodayCourseCard(course: CourseSlotVo) {
     }
 }
 
-private fun buildTimeLabel(startSection: Int, endSection: Int): String {
-    val start = sectionTimeMap[startSection]?.start
-    val end = sectionTimeMap[endSection]?.end
-    return if (start != null && end != null) "$start-$end" else "时间待定"
-}
 
 private fun weekDayText(weekDay: Int): String {
     return when (weekDay) {

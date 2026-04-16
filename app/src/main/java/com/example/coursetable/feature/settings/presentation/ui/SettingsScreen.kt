@@ -30,15 +30,15 @@ fun SettingsScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(horizontal = 12.dp, vertical = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+            .padding(horizontal = 10.dp, vertical = 6.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
-        Text(text = "设置", style = MaterialTheme.typography.titleLarge)
+        Text(text = "设置", style = MaterialTheme.typography.titleMedium)
         Text(
             text = "课表数据管理",
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(top = 2.dp)
+            modifier = Modifier.padding(top = 1.dp)
         )
 
         ActionCard(
@@ -50,7 +50,7 @@ fun SettingsScreen(
                     imageVector = Icons.Default.CalendarMonth,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(18.dp)
+                    modifier = Modifier.size(16.dp)
                 )
             }
         )
@@ -63,9 +63,9 @@ fun SettingsScreen(
         ) {
             Text(
                 text = "提示：重新导入会先清空本地课程数据，请确保教务系统可正常访问。",
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(12.dp)
+                modifier = Modifier.padding(10.dp)
             )
         }
 
@@ -78,7 +78,7 @@ fun SettingsScreen(
                     imageVector = Icons.Default.SystemUpdateAlt,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(18.dp)
+                    modifier = Modifier.size(16.dp)
                 )
             }
         )
@@ -92,7 +92,7 @@ fun SettingsScreen(
                     imageVector = Icons.Default.DeleteSweep,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.size(18.dp)
+                    modifier = Modifier.size(16.dp)
                 )
             },
             modifier = Modifier
@@ -115,18 +115,18 @@ private fun ActionCard(
             containerColor = MaterialTheme.colorScheme.surface
         )
     ) {
-        Column(modifier = Modifier.padding(10.dp)) {
+        Column(modifier = Modifier.padding(8.dp)) {
             icon()
             Text(
                 text = title,
-                style = MaterialTheme.typography.titleSmall,
-                modifier = Modifier.padding(top = 6.dp)
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(top = 4.dp)
             )
             Text(
                 text = subtitle,
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 2.dp)
+                modifier = Modifier.padding(top = 1.dp)
             )
         }
     }

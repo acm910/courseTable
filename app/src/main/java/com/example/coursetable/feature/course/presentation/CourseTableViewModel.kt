@@ -13,6 +13,7 @@ import com.example.coursetable.feature.course.presentation.model.CourseFormMode
 import com.example.coursetable.feature.course.presentation.model.CourseFormState
 import com.example.coursetable.feature.course.presentation.model.CourseSelection
 import com.example.coursetable.feature.course.presentation.ui.table.buildSectionRangeOptions
+import com.example.coursetable.feature.course.presentation.ui.table.calculateCurrentWeek
 import com.example.coursetable.feature.course.presentation.ui.table.findPeriodIndexByStartSection
 import com.example.coursetable.feature.webView.JwxtCourseImportParser
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -29,9 +30,10 @@ import java.time.LocalDate
 class CourseTableViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = CourseRepositoryProvider.get(application)
     private val appContext = application.applicationContext
+    private val initialSemesterStartDate = SemesterStartDateStore.get(appContext)
 
-    private val selectedWeekFlow = MutableStateFlow(1)
-    private val semesterStartDateFlow = MutableStateFlow(SemesterStartDateStore.get(appContext))
+    private val selectedWeekFlow = MutableStateFlow(calculateCurrentWeek(initialSemesterStartDate))
+    private val semesterStartDateFlow = MutableStateFlow(initialSemesterStartDate)
     private val showWeekPickerFlow = MutableStateFlow(false)
     private val dialogStateFlow = MutableStateFlow<CourseDialogState>(CourseDialogState.None)
     private val formStateFlow = MutableStateFlow(CourseFormState())
@@ -88,7 +90,10 @@ class CourseTableViewModel(application: Application) : AndroidViewModel(applicat
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = CourseTableUiState()
+        initialValue = CourseTableUiState(
+            selectedWeek = selectedWeekFlow.value,
+            semesterStartDate = semesterStartDateFlow.value
+        )
     )
 
     fun onWeekSelectorClick() {
@@ -107,6 +112,7 @@ class CourseTableViewModel(application: Application) : AndroidViewModel(applicat
     fun onSemesterStartDateChange(startDate: LocalDate) {
         val normalizedDate = startDate
         semesterStartDateFlow.value = normalizedDate
+        selectedWeekFlow.value = calculateCurrentWeek(normalizedDate)
         SemesterStartDateStore.set(appContext, normalizedDate)
     }
 

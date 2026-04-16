@@ -15,11 +15,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -31,6 +33,7 @@ import com.example.coursetable.feature.course.presentation.ui.table.WeekPickerBo
 import com.example.coursetable.feature.course.presentation.ui.table.WeekSelector
 import com.example.coursetable.feature.course.presentation.ui.table.buildWeekSchedules
 import com.example.coursetable.feature.course.presentation.ui.table.calculateDayWidth
+import com.example.coursetable.feature.course.presentation.ui.table.calculateCurrentWeek
 import com.example.coursetable.feature.course.presentation.ui.table.calculateSlotHeights
 import com.example.coursetable.feature.course.presentation.ui.table.calculateVisibleDays
 import com.example.coursetable.feature.course.presentation.ui.table.slotWeights
@@ -84,11 +87,26 @@ fun CourseTablePrototype(
     val today = remember { Calendar.getInstance() }
     val todayMonth = today.get(Calendar.MONTH) + 1
     val todayDayOfMonth = today.get(Calendar.DAY_OF_MONTH)
+    val todayWeekDayIndex = today.get(Calendar.DAY_OF_WEEK).let { day -> if (day == Calendar.SUNDAY) 6 else day - 2 }
+    val horizontalScrollState = rememberScrollState()
+    val density = LocalDensity.current
+    var didAutoAlignForWeek by remember(effectiveSelectedWeek) { mutableStateOf(false) }
 
     BoxWithConstraints(modifier = modifier.fillMaxSize()) {
         val contentWidth = (maxWidth - leftTimeLabelWidth - daySpacing).coerceAtLeast(0.dp)
         val visibleDays = calculateVisibleDays(contentWidth, minCourseBlockWidth, daySpacing)
         val dayWidth = calculateDayWidth(contentWidth, visibleDays, daySpacing)
+        val currentWeek = calculateCurrentWeek(semesterStartDate)
+        val maxStartIndex = (schedules.size - visibleDays).coerceAtLeast(0)
+        val preferredStartIndex = (todayWeekDayIndex - (visibleDays - 1)).coerceIn(0, maxStartIndex)
+        val targetStartIndex = if (effectiveSelectedWeek == currentWeek) preferredStartIndex else 0
+
+        LaunchedEffect(effectiveSelectedWeek, visibleDays, dayWidth, daySpacing) {
+            if (didAutoAlignForWeek) return@LaunchedEffect
+            val targetOffsetPx = with(density) { ((dayWidth + daySpacing) * targetStartIndex).roundToPx() }
+            horizontalScrollState.scrollTo(targetOffsetPx)
+            didAutoAlignForWeek = true
+        }
 
         val tableBodyHeight = (maxHeight - weekSelectorHeight - 8.dp).coerceAtLeast(0.dp)
         val slotAreaHeight = (tableBodyHeight - dayHeaderHeight - headerBottomGap).coerceAtLeast(0.dp)
@@ -127,7 +145,7 @@ fun CourseTablePrototype(
                 Row(
                     modifier = Modifier
                         .fillMaxHeight()
-                        .horizontalScroll(rememberScrollState())
+                        .horizontalScroll(horizontalScrollState)
                 ) {
                     schedules.forEachIndexed { index, day ->
                         DayColumn(

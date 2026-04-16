@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.unit.dp
+import com.example.coursetable.core.time.buildSectionTimeLabel
 import com.example.coursetable.domain.model.CourseSlotVo
 
 @Composable
@@ -28,6 +29,9 @@ fun CourseDetailDialog(
     onEditCourse: () -> Unit,
     onDeleteCourse: () -> Unit
 ) {
+    val endSection = slot.startSection + slot.sectionCount - 1
+    val timeLabel = buildSectionTimeLabel(slot.startSection, endSection)
+
     Dialog(onDismissRequest = onDismiss) {
         Surface(
             shape = MaterialTheme.shapes.large,
@@ -62,7 +66,7 @@ fun CourseDetailDialog(
                 )
                 Text(text = "授课地点: ${slot.location}", modifier = Modifier.padding(top = 4.dp))
                 Text(
-                    text = "授课时间: 第${slot.startSection}-${slot.startSection + slot.sectionCount - 1}节（具体时间待补充）",
+                    text = "授课时间: 第${slot.startSection}-${endSection}节（$timeLabel）",
                     modifier = Modifier.padding(top = 4.dp)
                 )
 
